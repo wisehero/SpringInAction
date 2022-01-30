@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import springinaction.taco.Ingredient;
 import springinaction.taco.Order;
 import springinaction.taco.Taco;
+import springinaction.taco.User;
 import springinaction.taco.data.IngredientRepository;
 import springinaction.taco.data.TacoRepository;
+import springinaction.taco.data.UserRepository;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,9 +30,10 @@ public class DesignTacoController {
 
     private final IngredientRepository ingredientRepository;
     private final TacoRepository tacoRepository;
+    private final UserRepository userRepository;
 
     @GetMapping
-    public String showDesignForm(Model model) {
+    public String showDesignForm(Model model, Principal principal) {
 
         List<Ingredient> ingredients = new ArrayList<>();
         ingredientRepository.findAll().forEach(ingredients::add);
@@ -38,7 +42,9 @@ public class DesignTacoController {
         for (Ingredient.Type type : types) {
             model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
         }
-        model.addAttribute("taco", new Taco());
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username);
+        model.addAttribute("user", user);
 
         return "design";
     }
